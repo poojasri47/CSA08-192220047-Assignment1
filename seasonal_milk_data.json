@@ -1,0 +1,19 @@
+{
+  "mode": "seasonal",
+  "entries": [
+    {
+      "farmer_id": "F101",
+      "session": "Morning",
+      "litres": "250",
+      "fat": "4.23",
+      "snf": "8.67"
+    },
+    {
+      "farmer_id": "F101",
+      "session": "Evening",
+      "litres": "260",
+      "fat": "4.20",
+      "snf": "8.70"
+    }
+  ]
+}

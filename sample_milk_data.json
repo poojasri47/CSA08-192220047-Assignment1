@@ -1,0 +1,26 @@
+{
+  "mode": "standard",
+  "entries": [
+    {
+      "farmer_id": "F001",
+      "session": "Morning",
+      "litres": "25.50",
+      "fat": "4.00",
+      "snf": "8.70"
+    },
+    {
+      "farmer_id": "F001",
+      "session": "Evening",
+      "litres": "18.00",
+      "fat": "3.80",
+      "snf": "8.60"
+    },
+    {
+      "farmer_id": "F002",
+      "session": "Morning",
+      "litres": "15.00",
+      "fat": "3.50",
+      "snf": "8.50"
+    }
+  ]
+}
