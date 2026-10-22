@@ -1,0 +1,42 @@
+def validate_entry(farmer_id, quantity, fat, snf):
+    """Validate farmer ID, quantity, fat and SNF values."""
+
+    if not isinstance(farmer_id, str) or not farmer_id.strip():
+        raise ValueError("Farmer ID cannot be empty.")
+
+    quantity = Decimal(quantity)
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    if quantity <= 0:
+        raise ValueError("Milk quantity must be greater than zero.")
+
+    if fat < MIN_FAT or fat > MAX_FAT:
+        raise ValueError(
+            f"Fat must be between {MIN_FAT}% and {MAX_FAT}%."
+        )
+
+    if snf <= 0:
+        raise ValueError("SNF must be greater than zero.")
+
+    return True
+
+
+def task3_validation():
+    print("\n" + "=" * 60)
+    print("TASK 3: VALIDATION")
+    print("=" * 60)
+
+    test_entries = [
+        ("F001", "10.5", "4.0", "8.7"),
+        ("F002", "20.0", "3.5", "8.5"),
+        ("F003", "15.0", "7.5", "8.6"),
+        ("F004", "-5.0", "4.0", "8.5"),
+    ]
+
+    for entry in test_entries:
+        try:
+            validate_entry(*entry)
+            print(entry, "-> Valid entry")
+        except ValueError as error:
+            print(entry, "-> Invalid entry:", error)

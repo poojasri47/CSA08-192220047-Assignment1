@@ -1,0 +1,53 @@
+def read_decimal(prompt):
+    """Read a valid decimal value from the user."""
+
+    while True:
+        try:
+            value = Decimal(input(prompt).strip())
+
+            if not value.is_finite():
+                print("Enter a finite numeric value.")
+                continue
+
+            return value
+
+        except (ValueError, ArithmeticError):
+            print("Invalid input. Please enter a number.")
+
+
+def task11_analyser_input():
+    print("\n" + "=" * 60)
+    print("TASK 11: MILK ANALYSER INPUT")
+    print("=" * 60)
+
+    farmer_id = input("Enter farmer ID: ").strip()
+
+    quantity = read_decimal("Enter milk quantity in litres: ")
+    fat = read_decimal("Enter fat percentage (two decimals): ")
+    snf = read_decimal("Enter SNF percentage (two decimals): ")
+
+    try:
+        validate_entry(
+            farmer_id,
+            quantity,
+            fat,
+            snf
+        )
+
+        rate, payment = calculate_payment(
+            quantity,
+            fat,
+            snf
+        )
+
+        print("\nMilk Entry Details")
+        print("-" * 40)
+        print("Farmer ID:", farmer_id)
+        print("Quantity:", quantity, "litres")
+        print("Fat:", f"{fat:.2f}%")
+        print("SNF:", f"{snf:.2f}%")
+        print("Rate per litre: ₹", rate)
+        print("Payment: ₹", payment)
+
+    except ValueError as error:
+        print("Invalid milk entry:", error)

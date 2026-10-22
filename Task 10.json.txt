@@ -1,0 +1,11 @@
+{
+     "base_rate": "30.00",
+     "base_fat": "3.5",
+     "base_snf": "8.5",
+     "fat_step": "0.1",
+     "snf_step": "0.1",
+     "fat_rate_change": "0.40",
+     "snf_rate_change": "0.30",
+     "min_fat": "2.0",
+     "max_fat": "7.0"
+}

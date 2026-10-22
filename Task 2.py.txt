@@ -1,0 +1,65 @@
+BASE_RATE = Decimal("30.00")
+BASE_FAT = Decimal("3.5")
+BASE_SNF = Decimal("8.5")
+
+FAT_STEP = Decimal("0.1")
+SNF_STEP = Decimal("0.1")
+
+FAT_RATE_CHANGE = Decimal("0.40")
+SNF_RATE_CHANGE = Decimal("0.30")
+
+MIN_FAT = Decimal("2.0")
+MAX_FAT = Decimal("7.0")
+
+
+
+def round_money(amount):
+    """Round money to the nearest paisa."""
+    return Decimal(amount).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )
+
+
+def nearest_step(value, reference, step):
+    """Calculate the number of steps above or below a reference."""
+    difference = Decimal(value) - Decimal(reference)
+
+    return int(
+        (difference / Decimal(step)).quantize(
+            Decimal("1"),
+            rounding=ROUND_HALF_UP
+        )
+    )
+
+
+def calculate_rate(fat, snf):
+    """Calculate the milk rate per litre."""
+
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    fat_steps = nearest_step(fat, BASE_FAT, FAT_STEP)
+    snf_steps = nearest_step(snf, BASE_SNF, SNF_STEP)
+
+    fat_adjustment = Decimal(fat_steps) * FAT_RATE_CHANGE
+    snf_adjustment = Decimal(snf_steps) * SNF_RATE_CHANGE
+
+    rate = BASE_RATE + fat_adjustment + snf_adjustment
+
+    return round_money(rate)
+
+
+def task2_rate_calculation():
+    print("\n" + "=" * 60)
+    print("TASK 2: MILK RATE CALCULATION")
+    print("=" * 60)
+
+    fat = Decimal("4.0")
+    snf = Decimal("8.7")
+
+    rate = calculate_rate(fat, snf)
+
+    print("Fat percentage:", fat)
+    print("SNF percentage:", snf)
+    print("Rate per litre: ₹", rate)

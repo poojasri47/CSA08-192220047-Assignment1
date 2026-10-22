@@ -1,0 +1,408 @@
+from decimal import Decimal, ROUND_HALF_UP
+from time import perf_counter
+import json
+
+BASE_RATE = Decimal("30.00")
+BASE_FAT = Decimal("3.5")
+BASE_SNF = Decimal("8.5")
+FAT_STEP = Decimal("0.1")
+SNF_STEP = Decimal("0.1")
+FAT_RATE_CHANGE = Decimal("0.40")
+SNF_RATE_CHANGE = Decimal("0.30")
+MIN_FAT = Decimal("2.0")
+MAX_FAT = Decimal("7.0")
+
+SEASONAL_BASE_RATE = Decimal("32.00")
+SEASONAL_FAT_RATE_CHANGE = Decimal("0.45")
+BONUS_THRESHOLD = Decimal("500.00")
+BONUS_PER_LITRE = Decimal("0.50")
+
+
+def task1_float_precision():
+    float_total = 0.0
+
+    for _ in range(100000):
+        float_total += 0.1
+        float_total += 0.2
+        float_total += 0.3
+
+    decimal_total = Decimal("0.0")
+
+    for _ in range(100000):
+        decimal_total += Decimal("0.1")
+        decimal_total += Decimal("0.2")
+        decimal_total += Decimal("0.3")
+
+    print("Float total:", float_total)
+    print("Decimal total:", decimal_total)
+
+
+def round_money(amount):
+    return Decimal(amount).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )
+
+
+def nearest_step(value, reference, step):
+    difference = Decimal(value) - Decimal(reference)
+
+    return int(
+        (difference / Decimal(step)).quantize(
+            Decimal("1"),
+            rounding=ROUND_HALF_UP
+        )
+    )
+
+
+def calculate_rate(fat, snf):
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    fat_steps = nearest_step(fat, BASE_FAT, FAT_STEP)
+    snf_steps = nearest_step(snf, BASE_SNF, SNF_STEP)
+
+    rate = (
+        BASE_RATE
+        + Decimal(fat_steps) * FAT_RATE_CHANGE
+        + Decimal(snf_steps) * SNF_RATE_CHANGE
+    )
+
+    return round_money(rate)
+
+
+def task2_rate_calculation():
+    fat = Decimal("4.0")
+    snf = Decimal("8.7")
+
+    rate = calculate_rate(fat, snf)
+
+    print("Fat:", fat)
+    print("SNF:", snf)
+    print("Rate per litre: ₹", rate)
+
+
+def validate_entry(farmer_id, quantity, fat, snf):
+    if not isinstance(farmer_id, str) or not farmer_id.strip():
+        raise ValueError("Farmer ID cannot be empty.")
+
+    quantity = Decimal(quantity)
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    if quantity <= 0:
+        raise ValueError("Quantity must be greater than zero.")
+
+    if not MIN_FAT <= fat <= MAX_FAT:
+        raise ValueError("Fat must be between 2.0% and 7.0%.")
+
+    if snf <= 0:
+        raise ValueError("SNF must be greater than zero.")
+
+    return True
+
+
+def task3_validation():
+    entries = [
+        ("F001", "10.5", "4.0", "8.7"),
+        ("F002", "20.0", "3.5", "8.5"),
+        ("F003", "15.0", "7.5", "8.6"),
+        ("F004", "-5.0", "4.0", "8.5")
+    ]
+
+    for entry in entries:
+        try:
+            validate_entry(*entry)
+            print(entry, "Valid")
+        except ValueError as error:
+            print(entry, "Invalid:", error)
+
+
+def task4_rounding():
+    print("round(2.5) =", round(2.5))
+    print("round(3.5) =", round(3.5))
+    print("round(4.5) =", round(4.5))
+    print("round(5.5) =", round(5.5))
+
+    result = Decimal("2.5").quantize(
+        Decimal("1"),
+        rounding=ROUND_HALF_UP
+    )
+
+    print("Decimal rounding:", result)
+
+
+def calculate_payment(quantity, fat, snf):
+    quantity = Decimal(quantity)
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    validate_entry("TEMP", quantity, fat, snf)
+
+    rate = calculate_rate(fat, snf)
+    payment = round_money(quantity * rate)
+
+    return rate, payment
+
+
+def task5_payment():
+    farmer_id = "F001"
+    quantity = Decimal("25.50")
+    fat = Decimal("4.0")
+    snf = Decimal("8.7")
+
+    rate, payment = calculate_payment(quantity, fat, snf)
+
+    print("Farmer ID:", farmer_id)
+    print("Quantity:", quantity)
+    print("Fat:", fat)
+    print("SNF:", snf)
+    print("Rate per litre: ₹", rate)
+    print("Payment: ₹", payment)
+
+
+def ten_day_total(entries):
+    total_litres = Decimal("0.00")
+    total_payment = Decimal("0.00")
+
+    for entry in entries:
+        quantity = Decimal(entry["quantity"])
+        fat = Decimal(entry["fat"])
+        snf = Decimal(entry["snf"])
+
+        validate_entry(
+            entry["farmer_id"],
+            quantity,
+            fat,
+            snf
+        )
+
+        _, payment = calculate_payment(quantity, fat, snf)
+
+        total_litres += quantity
+        total_payment += payment
+
+    return total_litres, round_money(total_payment)
+
+
+def task6_ten_day_total():
+    entries = [
+        {
+            "farmer_id": "F001",
+            "quantity": "100.00",
+            "fat": "4.0",
+            "snf": "8.7"
+        },
+        {
+            "farmer_id": "F002",
+            "quantity": "150.00",
+            "fat": "3.5",
+            "snf": "8.5"
+        },
+        {
+            "farmer_id": "F003",
+            "quantity": "200.00",
+            "fat": "4.2",
+            "snf": "8.6"
+        }
+    ]
+
+    total_litres, total_payment = ten_day_total(entries)
+
+    print("Total litres:", total_litres)
+    print("Total payment: ₹", total_payment)
+
+
+def task7_module_example():
+    from milkrate import calculate_rate as module_calculate_rate
+
+    fat = Decimal("4.0")
+    snf = Decimal("8.7")
+
+    print("Module rate: ₹", module_calculate_rate(fat, snf))
+
+
+def task8_testing():
+    test_cases = [
+        ("3.5", "8.5", Decimal("30.00")),
+        ("4.0", "8.5", Decimal("32.00")),
+        ("3.5", "9.0", Decimal("31.50")),
+        ("4.0", "8.7", Decimal("33.50"))
+    ]
+
+    for fat, snf, expected in test_cases:
+        actual = calculate_rate(fat, snf)
+
+        print(
+            f"Fat={fat}, SNF={snf}, "
+            f"Expected=₹{expected}, Actual=₹{actual}"
+        )
+
+        assert actual == expected
+
+    print("All tests passed.")
+
+
+def task9_performance():
+    quantities = [
+        Decimal("10.00")
+        for _ in range(100000)
+    ]
+
+    start = perf_counter()
+    total_loop = Decimal("0.00")
+
+    for quantity in quantities:
+        total_loop += quantity
+
+    loop_time = perf_counter() - start
+
+    start = perf_counter()
+    total_sum = sum(quantities, Decimal("0.00"))
+    sum_time = perf_counter() - start
+
+    print("Loop total:", total_loop)
+    print("Loop time:", loop_time)
+
+    print("Sum total:", total_sum)
+    print("Sum time:", sum_time)
+
+    assert total_loop == total_sum
+
+
+def load_rate_card(filename="rate_card.json"):
+    with open(filename, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    required_keys = [
+        "base_rate",
+        "base_fat",
+        "base_snf",
+        "fat_step",
+        "snf_step",
+        "fat_rate_change",
+        "snf_rate_change",
+        "min_fat",
+        "max_fat"
+    ]
+
+    for key in required_keys:
+        if key not in data:
+            raise ValueError(f"Missing setting: {key}")
+
+        data[key] = Decimal(str(data[key]))
+
+    if data["fat_step"] <= 0 or data["snf_step"] <= 0:
+        raise ValueError("Steps must be positive.")
+
+    if data["min_fat"] > data["max_fat"]:
+        raise ValueError("Invalid fat range.")
+
+    return data
+
+
+def calculate_rate_from_card(fat, snf, rate_card):
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    if not rate_card["min_fat"] <= fat <= rate_card["max_fat"]:
+        raise ValueError("Fat is outside the allowed range.")
+
+    if snf <= 0:
+        raise ValueError("SNF must be greater than zero.")
+
+    fat_steps = nearest_step(
+        fat,
+        rate_card["base_fat"],
+        rate_card["fat_step"]
+    )
+
+    snf_steps = nearest_step(
+        snf,
+        rate_card["base_snf"],
+        rate_card["snf_step"]
+    )
+
+    rate = (
+        rate_card["base_rate"]
+        + Decimal(fat_steps) * rate_card["fat_rate_change"]
+        + Decimal(snf_steps) * rate_card["snf_rate_change"]
+    )
+
+    return round_money(rate)
+
+
+def task10_json_rate_card():
+    try:
+        rate_card = load_rate_card("rate_card.json")
+
+        rate = calculate_rate_from_card(
+            "4.0",
+            "8.7",
+            rate_card
+        )
+
+        print("Rate from JSON: ₹", rate)
+
+    except FileNotFoundError:
+        print("rate_card.json not found.")
+
+    except (ValueError, KeyError, TypeError, ArithmeticError) as error:
+        print("Rate card error:", error)
+
+
+def read_decimal(prompt):
+    while True:
+        try:
+            value = Decimal(input(prompt).strip())
+
+            if not value.is_finite():
+                print("Enter a finite number.")
+                continue
+
+            return value
+
+        except (ValueError, ArithmeticError):
+            print("Invalid number. Try again.")
+
+
+def task11_analyser_input():
+    farmer_id = input("Enter farmer ID: ").strip()
+
+    quantity = read_decimal("Enter quantity in litres: ")
+    fat = read_decimal("Enter fat percentage: ")
+    snf = read_decimal("Enter SNF percentage: ")
+
+    try:
+        validate_entry(farmer_id, quantity, fat, snf)
+
+        rate, payment = calculate_payment(quantity, fat, snf)
+
+        print("\nFarmer ID:", farmer_id)
+        print("Quantity:", quantity)
+        print("Fat:", f"{fat:.2f}%")
+        print("SNF:", f"{snf:.2f}%")
+        print("Rate per litre: ₹", rate)
+        print("Payment: ₹", payment)
+
+    except ValueError as error:
+        print("Invalid entry:", error)
+
+
+def calculate_seasonal_rate(fat, snf):
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    validate_entry("TEMP", Decimal("1.00"), fat, snf)
+
+    fat_steps = nearest_step(fat, BASE_FAT, FAT_STEP)
+    snf_steps = nearest_step(snf, BASE_SNF, SNF_STEP)
+
+    rate = (
+        SEASONAL_BASE_RATE
+        + Decimal(fat_steps) * SEASONAL_FAT_RATE_CHANGE
+        + Decimal(snf_steps) * SNF_RATE_CHANGE
+    )
+
+    return round_money(rate)
+

@@ -1,0 +1,36 @@
+def task9_performance():
+    print("\n" + "=" * 60)
+    print("TASK 9: PERFORMANCE TESTING")
+    print("=" * 60)
+
+    number_of_entries = 100000
+
+    quantities = [
+        Decimal("10.00")
+        for _ in range(number_of_entries)
+    ]
+
+    start_time = perf_counter()
+
+    total_loop = Decimal("0.00")
+
+    for quantity in quantities:
+        total_loop += quantity
+
+    loop_time = perf_counter() - start_time
+
+    start_time = perf_counter()
+
+    total_sum = sum(quantities, Decimal("0.00"))
+
+    sum_time = perf_counter() - start_time
+
+    print("Number of entries:", number_of_entries)
+    print("Loop total:", total_loop)
+    print("Loop time:", loop_time, "seconds")
+    print("Sum total:", total_sum)
+    print("Sum time:", sum_time, "seconds")
+
+    assert total_loop == total_sum
+
+    print("Both methods produced the same result.")

@@ -1,0 +1,104 @@
+def calculate_ten_day_seasonal_payment(entries):
+    total_litres = Decimal("0.00")
+    total_milk_payment = Decimal("0.00")
+
+    for entry in entries:
+        quantity = Decimal(entry["quantity"])
+        fat = Decimal(entry["fat"])
+        snf = Decimal(entry["snf"])
+
+        validate_entry(
+            entry["farmer_id"],
+            quantity,
+            fat,
+            snf
+        )
+
+        rate = calculate_seasonal_rate(fat, snf)
+        payment = round_money(quantity * rate)
+
+        total_litres += quantity
+        total_milk_payment += payment
+
+    total_milk_payment = round_money(total_milk_payment)
+
+    bonus = (
+        round_money(total_litres * BONUS_PER_LITRE)
+        if total_litres > BONUS_THRESHOLD
+        else Decimal("0.00")
+    )
+
+    return {
+        "total_litres": total_litres,
+        "milk_payment": total_milk_payment,
+        "bonus": bonus,
+        "final_payment": round_money(
+            total_milk_payment + bonus
+        )
+    }
+
+
+def task12_seasonal_bonus():
+    entries = [
+        {
+            "farmer_id": "F101",
+            "quantity": "250.00",
+            "fat": "4.23",
+            "snf": "8.67"
+        },
+        {
+            "farmer_id": "F101",
+            "quantity": "260.00",
+            "fat": "4.20",
+            "snf": "8.70"
+        }
+    ]
+
+    result = calculate_ten_day_seasonal_payment(entries)
+
+    print("Farmer ID: F101")
+    print("Total litres:", result["total_litres"])
+    print("Milk payment: ₹", result["milk_payment"])
+    print("Bonus: ₹", result["bonus"])
+    print("Final payment: ₹", result["final_payment"])
+
+
+def interactive_milk_payment():
+    farmer_id = input("Enter farmer ID: ").strip()
+
+    quantity = read_decimal("Enter milk quantity in litres: ")
+    fat = read_decimal("Enter fat percentage: ")
+    snf = read_decimal("Enter SNF percentage: ")
+
+    try:
+        validate_entry(farmer_id, quantity, fat, snf)
+
+        rate, payment = calculate_payment(quantity, fat, snf)
+
+        print("\nPayment Receipt")
+        print("Farmer ID:", farmer_id)
+        print("Quantity:", quantity, "litres")
+        print("Fat:", f"{fat:.2f}%")
+        print("SNF:", f"{snf:.2f}%")
+        print("Rate per litre: ₹", rate)
+        print("Total payment: ₹", payment)
+
+    except ValueError as error:
+        print("Error:", error)
+
+
+def main():
+    task1_float_precision()
+    task2_rate_calculation()
+    task3_validation()
+    task4_rounding()
+    task5_payment()
+    task6_ten_day_total()
+    task8_testing()
+    task9_performance()
+    task10_json_rate_card()
+    task12_seasonal_bonus()
+
+
+if __name__ == "__main__":
+    main()

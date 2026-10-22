@@ -1,0 +1,33 @@
+def calculate_payment(quantity, fat, snf):
+    """Calculate milk rate and payment for one delivery."""
+
+    quantity = Decimal(quantity)
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    validate_entry("TEMP", quantity, fat, snf)
+
+    rate = calculate_rate(fat, snf)
+    payment = round_money(quantity * rate)
+
+    return rate, payment
+
+
+def task5_payment():
+    print("\n" + "=" * 60)
+    print("TASK 5: PAYMENT CALCULATION")
+    print("=" * 60)
+
+    farmer_id = "F001"
+    quantity = Decimal("25.50")
+    fat = Decimal("4.0")
+    snf = Decimal("8.7")
+
+    rate, payment = calculate_payment(quantity, fat, snf)
+
+    print("Farmer ID:", farmer_id)
+    print("Quantity:", quantity, "litres")
+    print("Fat:", fat, "%")
+    print("SNF:", snf, "%")
+    print("Rate per litre: ₹", rate)
+    print("Total payment: ₹", payment)

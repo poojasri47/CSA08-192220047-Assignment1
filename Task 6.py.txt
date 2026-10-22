@@ -1,0 +1,52 @@
+def ten_day_total(entries):
+    """Calculate total litres and payment for a list of deliveries."""
+
+    total_litres = Decimal("0.00")
+    total_payment = Decimal("0.00")
+
+    for entry in entries:
+        farmer_id = entry["farmer_id"]
+        quantity = Decimal(entry["quantity"])
+        fat = Decimal(entry["fat"])
+        snf = Decimal(entry["snf"])
+
+        validate_entry(farmer_id, quantity, fat, snf)
+
+        _, payment = calculate_payment(quantity, fat, snf)
+
+        total_litres += quantity
+        total_payment += payment
+
+    return total_litres, round_money(total_payment)
+
+
+def task6_ten_day_total():
+    print("\n" + "=" * 60)
+    print("TASK 6: TEN-DAY TOTAL")
+    print("=" * 60)
+
+    entries = [
+        {
+            "farmer_id": "F001",
+            "quantity": "100.00",
+            "fat": "4.0",
+            "snf": "8.7"
+        },
+        {
+            "farmer_id": "F002",
+            "quantity": "150.00",
+            "fat": "3.5",
+            "snf": "8.5"
+        },
+        {
+            "farmer_id": "F003",
+            "quantity": "200.00",
+            "fat": "4.2",
+            "snf": "8.6"
+        }
+    ]
+
+    total_litres, total_payment = ten_day_total(entries)
+
+    print("Total milk collected:", total_litres, "litres")
+    print("Total payment: ₹", total_payment)

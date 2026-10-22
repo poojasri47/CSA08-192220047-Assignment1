@@ -1,0 +1,25 @@
+def task8_testing():
+    print("\n" + "=" * 60)
+    print("TASK 8: FUNCTION TESTING")
+    print("=" * 60)
+
+    test_cases = [
+        ("3.5", "8.5", Decimal("30.00")),
+        ("4.0", "8.5", Decimal("32.00")),
+        ("3.5", "9.0", Decimal("31.50")),
+        ("4.0", "8.7", Decimal("33.50")),
+    ]
+
+    for fat, snf, expected in test_cases:
+        actual = calculate_rate(fat, snf)
+
+        print(
+            f"Fat={fat}, SNF={snf}, "
+            f"Expected=₹{expected}, Actual=₹{actual}"
+        )
+
+        assert actual == expected, (
+            f"Test failed for fat={fat}, SNF={snf}"
+        )
+
+    print("All rate calculation tests passed.")

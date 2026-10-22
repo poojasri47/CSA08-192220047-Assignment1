@@ -1,0 +1,17 @@
+def task4_rounding():
+    print("\n" + "=" * 60)
+    print("TASK 4: PYTHON ROUNDING")
+    print("=" * 60)
+
+    print("round(2.5) =", round(2.5))
+    print("round(3.5) =", round(3.5))
+    print("round(4.5) =", round(4.5))
+    print("round(5.5) =", round(5.5))
+
+    print(
+        "Decimal 2.5 with ROUND_HALF_UP =",
+        Decimal("2.5").quantize(
+            Decimal("1"),
+            rounding=ROUND_HALF_UP
+        )
+    )

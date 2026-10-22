@@ -1,0 +1,99 @@
+def load_rate_card(filename="rate_card.json"):
+    """Load milk rate parameters from a JSON file."""
+
+    with open(filename, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    required_keys = [
+        "base_rate",
+        "base_fat",
+        "base_snf",
+        "fat_step",
+        "snf_step",
+        "fat_rate_change",
+        "snf_rate_change",
+        "min_fat",
+        "max_fat"
+    ]
+
+    for key in required_keys:
+        if key not in data:
+            raise ValueError(
+                f"Missing rate-card setting: {key}"
+            )
+
+    for key in required_keys:
+        data[key] = Decimal(str(data[key]))
+
+    if data["fat_step"] <= 0 or data["snf_step"] <= 0:
+        raise ValueError("Fat and SNF steps must be positive.")
+
+    if data["min_fat"] > data["max_fat"]:
+        raise ValueError("Minimum fat cannot exceed maximum fat.")
+
+    return data
+
+
+def calculate_rate_from_card(fat, snf, rate_card):
+    """Calculate the milk rate using loaded rate-card settings."""
+
+    fat = Decimal(fat)
+    snf = Decimal(snf)
+
+    if not rate_card["min_fat"] <= fat <= rate_card["max_fat"]:
+        raise ValueError("Fat value is outside the allowed range.")
+
+    if snf <= 0:
+        raise ValueError("SNF must be greater than zero.")
+
+    fat_steps = nearest_step(
+        fat,
+        rate_card["base_fat"],
+        rate_card["fat_step"]
+    )
+
+    snf_steps = nearest_step(
+        snf,
+        rate_card["base_snf"],
+        rate_card["snf_step"]
+    )
+
+    rate = (
+        rate_card["base_rate"]
+        + Decimal(fat_steps) * rate_card["fat_rate_change"]
+        + Decimal(snf_steps) * rate_card["snf_rate_change"]
+    )
+
+    return round_money(rate)
+
+
+def task10_json_rate_card():
+    print("\n" + "=" * 60)
+    print("TASK 10: JSON RATE CARD")
+    print("=" * 60)
+
+    try:
+        rate_card = load_rate_card("rate_card.json")
+
+        fat = Decimal("4.0")
+        snf = Decimal("8.7")
+
+        rate = calculate_rate_from_card(
+            fat,
+            snf,
+            rate_card
+        )
+
+        print("Rate card loaded successfully.")
+        print("Fat:", fat)
+        print("SNF:", snf)
+        print("Rate per litre: ₹", rate)
+
+    except FileNotFoundError:
+        print(
+            "rate_card.json not found. "
+            "Create the JSON file using the example above."
+        )
+
+    except (ValueError, KeyError, TypeError, ArithmeticError) as error:
+        print("Rate card error:", error)

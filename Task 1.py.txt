@@ -1,0 +1,21 @@
+def task1_float_precision():
+    print("\n" + "=" * 60)
+    print("TASK 1: FLOATING-POINT PRECISION")
+    print("=" * 60)
+
+    float_total = 0.0
+
+    for _ in range(100000):
+        float_total += 0.1
+        float_total += 0.2
+        float_total += 0.3
+
+    decimal_total = Decimal("0.0")
+
+    for _ in range(100000):
+        decimal_total += Decimal("0.1")
+        decimal_total += Decimal("0.2")
+        decimal_total += Decimal("0.3")
+
+    print("Using float:", float_total)
+    print("Using Decimal:", decimal_total)
